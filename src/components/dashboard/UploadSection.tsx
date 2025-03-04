@@ -1,173 +1,135 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Upload, FileCheck, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Upload, Loader2 } from "lucide-react";
 
-interface UploadSectionProps {
-  onUploadComplete: () => void;
-}
-
-const UploadSection = ({ onUploadComplete }: UploadSectionProps) => {
+const UploadSection = ({ onUpload }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [analyzingProgress, setAnalyzingProgress] = useState(0);
-  const [stage, setStage] = useState<"initial" | "uploading" | "analyzing" | "complete">("initial");
   
   const handleUpload = () => {
     setIsUploading(true);
-    setStage("uploading");
-    setUploadProgress(0);
+    toast.info("Starting file upload");
     
-    // Simulate upload progress
+    // Simulate file upload progress
     const uploadInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        const newProgress = prev + 5;
-        if (newProgress >= 100) {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
           clearInterval(uploadInterval);
-          setStage("analyzing");
-          simulateAnalysis();
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 150);
-  };
-  
-  const simulateAnalysis = () => {
-    setAnalyzingProgress(0);
-    
-    // Simulate analysis progress
-    const analysisInterval = setInterval(() => {
-      setAnalyzingProgress((prev) => {
-        const newProgress = prev + 2;
-        if (newProgress >= 100) {
-          clearInterval(analysisInterval);
-          setStage("complete");
           setIsUploading(false);
-          toast.success("Analysis complete! Factory data ready to view.");
-          onUploadComplete();
+          setIsProcessing(true);
+          simulateProcessing();
           return 100;
         }
-        return newProgress;
+        return prev + 10;
       });
-    }, 100);
+    }, 300);
   };
   
-  const renderLoadingAnimation = () => {
-    if (stage === "uploading") {
-      return (
-        <div className="space-y-4 w-full max-w-md mx-auto">
-          <div className="w-full h-2 bg-muted overflow-hidden rounded-full">
-            <motion.div
-              className="h-full bg-accent"
-              initial={{ width: "0%" }}
-              animate={{ width: `${uploadProgress}%` }}
-            />
-          </div>
-          <p className="text-center text-sm text-muted-foreground">
-            Uploading sensor data... {uploadProgress}%
-          </p>
-        </div>
-      );
-    }
+  const simulateProcessing = () => {
+    toast.success("Upload complete! Processing data...");
     
-    if (stage === "analyzing") {
-      const stageTexts = [
-        "Preprocessing data...",
-        "Analyzing temperature patterns...",
-        "Checking pressure readings...",
-        "Running vibration analysis...",
-        "Detecting anomalies...",
-        "Generating insights..."
-      ];
-      
-      const currentStageIndex = Math.min(
-        Math.floor(analyzingProgress / (100 / stageTexts.length)),
-        stageTexts.length - 1
-      );
-      
-      return (
-        <div className="space-y-6 w-full max-w-md mx-auto">
-          <div className="loading-ring mx-auto">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-          <div className="w-full h-2 bg-muted overflow-hidden rounded-full">
-            <motion.div
-              className="h-full bg-accent"
-              initial={{ width: "0%" }}
-              animate={{ width: `${analyzingProgress}%` }}
-            />
-          </div>
-          <div className="space-y-1">
-            <p className="text-center font-medium">
-              {stageTexts[currentStageIndex]}
-            </p>
-            <p className="text-center text-sm text-muted-foreground">
-              AI processing... {analyzingProgress}%
-            </p>
-          </div>
-        </div>
-      );
-    }
-    
-    return null;
+    // Simulate AI processing time
+    setTimeout(() => {
+      setIsProcessing(false);
+      toast.success("Analysis complete!");
+      onUpload();
+    }, 3000);
   };
-  
+
   return (
     <motion.div 
-      className="bg-muted/30 rounded-xl p-8 text-center glass-card"
+      className="flex flex-col items-center justify-center py-20"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      transition={{ duration: 0.7 }}
     >
-      {stage === "initial" ? (
-        <>
-          <h3 className="text-xl font-semibold mb-4">Upload Sensor Data</h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Upload your factory sensor data to analyze and detect anomalies using our AI-powered platform.
-          </p>
-          <Button 
-            onClick={handleUpload} 
-            className="bg-accent hover:bg-accent/90 animate-pulse-glow"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Data
-          </Button>
-        </>
-      ) : (
-        <>
-          <h3 className="text-xl font-semibold mb-6">
-            {stage === "uploading" ? "Uploading Data..." : 
-             stage === "analyzing" ? "Analyzing with AI..." : 
-             "Analysis Complete!"}
-          </h3>
-          {renderLoadingAnimation()}
-          {stage === "complete" && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="mt-4"
-            >
-              <p className="text-accent font-medium mb-4">
-                Your data has been successfully analyzed!
-              </p>
-              <Button 
-                onClick={() => setStage("initial")} 
-                variant="outline"
-                className="border-accent/30 bg-accent/5 hover:bg-accent/10"
-              >
-                Upload New Data
-              </Button>
-            </motion.div>
+      <motion.div 
+        className="glass-card p-10 rounded-xl max-w-3xl w-full text-center space-y-6 relative overflow-hidden"
+        whileHover={{ boxShadow: "0 0 20px rgba(77, 124, 254, 0.3)" }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-accent/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+        
+        <motion.div 
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {isProcessing ? (
+            <div className="mb-6">
+              <div className="loading-ring mx-auto">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          ) : (
+            <div className="h-20 w-20 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-6">
+              <Upload className="h-10 w-10 text-accent" />
+            </div>
           )}
-        </>
-      )}
+        </motion.div>
+        
+        <h2 className="text-2xl md:text-3xl font-bold">
+          {isProcessing ? "Processing Your Data" : "Upload Your Sensor Data"}
+        </h2>
+        
+        <p className="text-muted-foreground max-w-md mx-auto">
+          {isProcessing 
+            ? "Our AI is analyzing your data to identify potential anomalies. This will only take a moment."
+            : "Upload your factory sensor data to analyze patterns and detect potential anomalies before they cause issues."
+          }
+        </p>
+        
+        {isUploading && (
+          <div className="w-full max-w-md mx-auto">
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-accent"
+                initial={{ width: "0%" }}
+                animate={{ width: `${uploadProgress}%` }}
+                transition={{ duration: 0.3 }}
+              ></motion.div>
+            </div>
+            <div className="text-sm text-muted-foreground mt-2">
+              {uploadProgress}% Uploaded
+            </div>
+          </div>
+        )}
+        
+        {!isUploading && !isProcessing && (
+          <motion.div 
+            className="flex flex-col md:flex-row gap-4 justify-center mt-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Button 
+              size="lg" 
+              className="bg-accent hover:bg-accent/90 animate-pulse-glow"
+              onClick={handleUpload}
+            >
+              <FileCheck className="mr-2 h-5 w-5" />
+              Upload CSV File
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-accent/50 hover:bg-accent/10"
+            >
+              <AlertCircle className="mr-2 h-5 w-5" />
+              View Sample Data
+            </Button>
+          </motion.div>
+        )}
+      </motion.div>
     </motion.div>
   );
 };
