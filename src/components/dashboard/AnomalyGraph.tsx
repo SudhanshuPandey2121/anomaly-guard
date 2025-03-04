@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -12,6 +11,10 @@ import {
   Legend
 } from "recharts";
 import { Thermometer, Gauge, Activity, RotateCw } from "lucide-react";
+
+interface AnomalyGraphProps {
+  sensorType?: "all" | "temperature" | "pressure" | "vibration" | "speed";
+}
 
 type SensorType = "temperature" | "pressure" | "vibration" | "speed";
 
@@ -69,8 +72,10 @@ const generateAnomalyData = (type: SensorType, days = 14) => {
   return data;
 };
 
-const AnomalyGraph = () => {
-  const [selectedType, setSelectedType] = useState<SensorType>("temperature");
+const AnomalyGraph = ({ sensorType = "temperature" }: AnomalyGraphProps) => {
+  // If sensorType is "all", default to "temperature" for display
+  const effectiveSensorType = sensorType === "all" ? "temperature" : sensorType as SensorType;
+  const [selectedType, setSelectedType] = useState<SensorType>(effectiveSensorType);
   const [data, setData] = useState(generateAnomalyData(selectedType));
   
   const handleTypeChange = (type: SensorType) => {
