@@ -64,8 +64,7 @@ const Dashboard = () => {
                       ))}
                     </div>
                   </div>
-                  {/* Cast the selectedSensor to any to bypass type checking */}
-                  <AnomalyGraph {...{ sensorType: selectedSensor } as any} />
+                  <AnomalyGraph sensorType={selectedSensor} />
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
 import { motion } from "framer-motion";
@@ -48,6 +48,7 @@ const Navbar = () => {
               </Button>
             </DialogTrigger>
             <DialogContent className="glass-card sm:max-w-md">
+              <DialogTitle className="sr-only">Login</DialogTitle>
               <LoginForm onSuccess={() => setLoginOpen(false)} />
             </DialogContent>
           </Dialog>
@@ -59,6 +60,7 @@ const Navbar = () => {
               </Button>
             </DialogTrigger>
             <DialogContent className="glass-card sm:max-w-md">
+              <DialogTitle className="sr-only">Sign Up</DialogTitle>
               <SignupForm onSuccess={() => setSignupOpen(false)} />
             </DialogContent>
           </Dialog>
